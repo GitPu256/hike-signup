@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Hike Sign-Up with Pu!</title>
+    <style>
+        * { box-sizing: border-box; }
+        body {
+            font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+            background: linear-gradient(rgba(0, 0, 0, 0.5), rgba(0, 0, 0, 0.5)), 
+                        url('https://images.unsplash.com/photo-1464822759023-fed622ff2c3b?auto=format&fit=crop&w=1920&q=80');
+            background-size: cover; background-position: center; background-attachment: fixed;
+            display: flex; flex-direction: column; align-items: center; min-height: 100vh; padding: 20px; color: #fff;
+        }
+
+        /* WHATSAPP ESCAPE OVERLAY */
+        #browser-guard {
+            display: none;
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: #1B5E20;
+            z-index: 9999;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+            padding: 30px;
+        }
+
+        .jump-btn {
+            background: #FBC02D;
+            color: #333;
+            padding: 20px;
+            border-radius: 50px;
+            text-decoration: none;
+            font-weight: bold;
+            font-size: 18px;
+            margin-top: 20px;
+            box-shadow: 0 10px 20px rgba(0,0,0,0.3);
+        }
+
+        .container {
+            background: rgba(255, 255, 255, 0.95); padding: 30px; border-radius: 20px;
+            width: 100%; max-width: 420px; box-shadow: 0 15px 35px rgba(0,0,0,0.3); color: #333; border: 3px solid #4CAF50;
+        }
+
+        h2 { text-align: center; color: #2E7D32; margin: 0; font-size: 26px; }
+        .welcome-msg { text-align: center; font-size: 17px; margin: 10px 0 20px 0; color: #555; }
+
+        input, button { width: 100%; padding: 14px; margin-bottom: 15px; border: 2px solid #ddd; border-radius: 10px; font-size: 16px; }
+        button { background: #2E7D32; color: white; border: none; font-weight: bold; cursor: pointer; }
+        
+        #success-alert { display: none; background: #2E7D32; color: white; padding: 15px; border-radius: 10px; margin-bottom: 20px; text-align: center; width: 100%; }
+    </style>
+</head>
+<body>
+
+    <div id="browser-guard">
+        <h1 style="font-size: 60px;">🏔️</h1>
+        <h2>Almost there!</h2>
+        <p>WhatsApp blocks sign-ups for security. Click below to open in your main browser to join the hike!</p>
+        <a href="#" id="escape-link" class="jump-btn">OPEN IN CHROME / SAFARI 🚀</a>
+    </div>
+
+    <div id="success-alert">🎒 Pack your bags! Sign-up successful! 🌲</div>
+
+    <div class="container" id="main-form">
+        <h2>🥾 Hike Sign-Up</h2>
+        <p class="welcome-msg">Let's go hiking with Pu! 🏔️</p>
+        <input type="text" id="name" placeholder="Full Name">
+        <input type="tel" id="phone" placeholder="Phone Number">
+        <label style="font-size:13px; display: flex; align-items: center; margin-bottom: 15px; color:#333;">
+            <input type="checkbox" id="consent" style="width: auto; margin-right: 10px;">
+            Ready for adventure!
+        </label>
+        <button id="submitBtn" onclick="register()">Join the Hike! 🧗</button>
+    </div>
+
+<script>
+    const CLOUD_URL = "YOUR_GOOGLE_SCRIPT_URL_HERE"; 
+
+    // DETECT IN-APP BROWSER
+    function detectInApp() {
+        const ua = navigator.userAgent || navigator.vendor || window.opera;
+        const isWhatsApp = (ua.indexOf("WhatsApp") > -1);
+        const isFB = (ua.indexOf("FBAN") > -1) || (ua.indexOf("FBAV") > -1);
+        
+        if (isWhatsApp || isFB) {
+            document.getElementById('browser-guard').style.display = 'flex';
+            // Set the escape link to current URL
+            document.getElementById('escape-link').href = window.location.href;
+        }
+    }
+
+    // Run detection on load
+    window.onload = detectInApp;
+
+    async function register() {
+        const name = document.getElementById("name").value.trim();
+        const phone = document.getElementById("phone").value.trim();
+        const consent = document.getElementById("consent").checked;
+        const btn = document.getElementById("submitBtn");
+
+        if (!name || !phone || !consent) {
+            alert("Fill everything in, hiker! 🌲");
+            return;
+        }
+
+        btn.disabled = true;
+        btn.innerText = "Sending...";
+
+        try {
+            await fetch(CLOUD_URL, {
+                method: "POST",
+                mode: "no-cors",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ name, phone, date: new Date().toLocaleString() })
+            });
+
+            document.getElementById("success-alert").style.display = "block";
+            document.getElementById("name").value = "";
+            document.getElementById("phone").value = "";
+            document.getElementById("consent").checked = false;
+            window.scrollTo(0, 0);
+        } catch (e) {
+            alert("Error! Please try opening in Safari/Chrome.");
+        } finally {
+            btn.disabled = false;
+            btn.innerText = "Join the Hike! 🧗";
+        }
+    }
+</script>
+</body>
+</html>
